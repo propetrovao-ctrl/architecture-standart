@@ -1,0 +1,24 @@
+@startuml C4-Context-Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контекста: Система открытия депозитов онлайн
+
+Person(cliente, "Клиент", "Пользователь банка")
+Person(backoffice, "Менеджер бэк-офиса", "Обрабатывает заявки на депозиты")
+Person(callcenter, "Менеджер кол-центра", "Обрабатывает заявки с сайта")
+
+System(deposit_system, "Система открытия депозитов онлайн", "Позволяет клиентам подавать заявки на депозиты через сайт и интернет-банк")
+
+System_Ext(sms_gateway, "СМС-шлюз", "Внешняя система для отправки СМС")
+System_Ext(telecom, "Телеком-оператор", "Внешний оператор по отправке СМС")
+
+Rel(cliente, deposit_system, "Подает заявку на депозит", "HTTPS")
+Rel(backoffice, deposit_system, "Обрабатывает заявки", "")
+Rel(callcenter, deposit_system, "Обрабатывает заявки", "")
+Rel(deposit_system, sms_gateway, "Отправляет СМС-уведомления", "API")
+Rel(sms_gateway, telecom, "Отправляет СМС", "API")
+
+@enduml
+
