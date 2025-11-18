@@ -1,0 +1,51 @@
+@startuml C4-Container-Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контейнеров: Система открытия депозитов онлайн
+
+Person(cliente, "Клиент", "Пользователь банка")
+Person(backoffice, "Менеджер бэк-офиса", "Обрабатывает заявки на депозиты")
+Person(callcenter, "Менеджер кол-центра", "Обрабатывает заявки с сайта")
+
+System_Boundary(site_boundary, "Сайт") {
+    Container(website, "Сайт", "PHP, React.js", "Веб-приложение для новых клиентов")
+}
+
+System_Boundary(ib_boundary, "Интернет-банк") {
+    Container(ib_frontend, "Frontend", "React.js", "Пользовательский интерфейс")
+    Container(ib_backend, "Backend", "ASP.NET MVC 4.5", "Бизнес-логика")
+    ContainerDb(ib_db, "MS SQL", "MS SQL", "База данных интернет-банка")
+}
+
+Container(api_gateway, "API Gateway", "Java Spring Boot", "Промежуточный сервис между интернет-банком и АБС")
+
+System_Boundary(cc_boundary, "Система кол-центра") {
+    Container(cc_system, "Система кол-центра", "Java Spring Boot, PostgreSQL", "Обработка заявок с сайта")
+}
+
+System_Boundary(abs_boundary, "АБС") {
+    Container(abs_client, "АБС Клиент", "Delphi", "Интерфейс для менеджеров")
+    Container(abs_api, "АБС API", "PL-SQL", "Бизнес-логика и обработка запросов")
+    ContainerDb(abs_db, "Oracle", "Oracle", "База данных АБС")
+}
+
+System_Ext(sms_gateway, "СМС-шлюз", "Внешняя система для отправки СМС")
+
+Rel(cliente, website, "Просматривает депозиты, подает заявку", "HTTPS")
+Rel(cliente, ib_frontend, "Входит в интернет-банк, подает заявку", "HTTPS")
+Rel(ib_frontend, ib_backend, "Запросы", "")
+Rel(ib_backend, ib_db, "Читает/записывает", "SQL")
+Rel(ib_backend, api_gateway, "Запросы к АБС", "API")
+Rel(website, cc_system, "Передает заявку", "API")
+Rel(callcenter, cc_system, "Обрабатывает заявки", "")
+Rel(cc_system, api_gateway, "Передает заявки в АБС", "API")
+Rel(api_gateway, abs_api, "Запросы к АБС", "API")
+Rel(abs_api, abs_db, "Читает/записывает", "SQL")
+Rel(backoffice, abs_client, "Обрабатывает заявки", "")
+Rel(abs_client, abs_api, "Запросы", "")
+Rel(api_gateway, sms_gateway, "Отправляет СМС", "API")
+
+@enduml
+
